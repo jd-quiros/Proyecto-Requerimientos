@@ -1,0 +1,34 @@
+{
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Access your Silk Road account",
+    "email": "Email",
+    "emailPlaceholder": "you@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Sign In",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "errorCredentials": "Invalid credentials"
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Join Silk Road",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "you@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "submit": "Register",
+    "haveAccount": "Already have an account?",
+    "login": "Sign In",
+    "errorLength": "Password must be at least 6 characters"
+  },
+  "home": {
+    "title": "Silk Road",
+    "subtitle": "Welcome to the Marketplace",
+    "logout": "Sign Out",
+    "loading": "Loading..."
+  }
+}
