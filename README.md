@@ -94,4 +94,4 @@ Access to XMLHttpRequest at 'http://127.0.0.1:5000/api/login'
 from origin 'http://localhost:5173' has been blocked by CORS policy
 
 al intentar iniciar sesión
-ME PICA EL CULITO HOLA
+
