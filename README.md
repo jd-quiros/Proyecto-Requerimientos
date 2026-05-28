@@ -26,9 +26,7 @@ python -m venv venv
 # Linux / Mac:
 source venv/bin/activate
 # Windows (PowerShell):
-venv\Scripts\Activate.ps1
-# Windows (CMD):
-venv\Scripts\activate.bat
+.\venv\bin\activate
 
 # Instalar dependencias
 pip install flask flask-sqlalchemy flask-cors pyjwt bcrypt

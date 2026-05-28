@@ -1,13 +1,10 @@
 # back/app/servicios/hash.py
-import bcrypt
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def hash_password(password: str) -> str:
     """Convierte una contraseña en texto plano a un hash seguro."""
-    # bcrypt genera un salt automáticamente y lo incluye en el hash
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
+    return generate_password_hash(password)
 
 def check_password(password: str, hashed: str) -> bool:
     """Verifica si una contraseña coincide con su hash."""
-    return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+    return check_password_hash(hashed, password)
