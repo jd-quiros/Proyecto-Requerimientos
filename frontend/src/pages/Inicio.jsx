@@ -176,9 +176,12 @@ export function Inicio() {
       </main>
 
       {mostrarModal && (
-        <CrearTiendaModal
-          onClose={() => setMostrarModal(false)}
-        />
+    <CrearTiendaModal
+      onClose={() => setMostrarModal(false)}
+      onTiendaCreada={(nuevaTienda) => {
+        setTiendas(prev => [...prev, nuevaTienda]);
+      }}
+    />
       )}
 
     </div>

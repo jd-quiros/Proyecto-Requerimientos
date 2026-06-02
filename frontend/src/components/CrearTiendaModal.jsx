@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../services/api';
 
-export function CrearTiendaModal({ onClose }) {
+export function CrearTiendaModal({ onClose, onTiendaCreada }) {
 
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -12,15 +12,17 @@ export function CrearTiendaModal({ onClose }) {
 
     try {
 
-      await api.post('/tiendas', {
-        nombre,
-        descripcion,
-        categoria
-      });
+    const response = await api.post('/tiendas', {
+      nombre,
+      descripcion,
+      categoria
+    });
+
+onTiendaCreada(response.data);
 
       alert('Tienda creada correctamente');
 
-      window.location.reload();
+      onClose();
 
     } catch (error) {
       console.error(error);

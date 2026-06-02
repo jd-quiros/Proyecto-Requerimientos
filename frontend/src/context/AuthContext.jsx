@@ -4,7 +4,9 @@ import * as api from '../services/api';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(null);
+  const [usuario, setUsuario] = useState(() => {
+  const guardado = localStorage.getItem('usuario');
+  return guardado ? JSON.parse(guardado) : null;});
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [cargando, setCargando] = useState(true);
 
@@ -17,6 +19,10 @@ export function AuthProvider({ children }) {
       const response = await api.login({ email, password });
       const { token: nuevoToken, usuario: datosUsuario } = response.data;
       localStorage.setItem('token', nuevoToken);
+      localStorage.setItem(
+      'usuario',
+      JSON.stringify(datosUsuario)
+      );
       setToken(nuevoToken);
       setUsuario(datosUsuario);
       return { exito: true };
@@ -27,22 +33,29 @@ export function AuthProvider({ children }) {
       };
     }
   };
+const registrarUsuario = async (nombre, email, password, rol) => {
+  try {
+    const response = await api.registrar({
+      nombre,
+      email,
+      password,
+      rol,
+    });
 
-  const registrarUsuario = async (nombre, email, password) => {
-    try {
-      const response = await api.registrar({ nombre, email, password });
-      const { token: nuevoToken, usuario: datosUsuario } = response.data;
-      localStorage.setItem('token', nuevoToken);
-      setToken(nuevoToken);
-      setUsuario(datosUsuario);
-      return { exito: true };
-    } catch (error) {
-      return {
-        exito: false,
-        error: error.response?.data?.error || 'Error al registrarse',
-      };
-    }
-  };
+    const { token: nuevoToken, usuario: datosUsuario } = response.data;
+
+    localStorage.setItem('token', nuevoToken);
+    setToken(nuevoToken);
+    setUsuario(datosUsuario);
+
+    return { exito: true };
+  } catch (error) {
+    return {
+      exito: false,
+      error: error.response?.data?.error || 'Error al registrarse',
+    };
+  }
+};
 
   const cerrarSesion = async () => {
     try {
@@ -51,6 +64,7 @@ export function AuthProvider({ children }) {
       // No importa si falla
     }
     localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
     setToken(null);
     setUsuario(null);
   };

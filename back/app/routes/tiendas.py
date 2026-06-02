@@ -38,9 +38,9 @@ def crear_tienda():
     if request.usuario_rol != "vendedor":
         return jsonify({"error": "Solo los vendedores pueden crear tiendas"}), 403
 
-    existente = Tienda.query.filter_by(vendedor_id=request.usuario_id).first()
-    if existente:
-        return jsonify({"error": "Ya tienes una tienda creada"}), 409
+    #existente = Tienda.query.filter_by(vendedor_id=request.usuario_id).first()
+    #if existente:
+    #    return jsonify({"error": "Ya tienes una tienda creada"}), 409
 
     datos = request.get_json()
     nombre = datos.get("nombre", "").strip()
@@ -55,9 +55,13 @@ def crear_tienda():
         descripcion=datos.get("descripcion", "").strip(),
         categoria=datos.get("categoria", "General").strip(),
         imagen=datos.get("imagen", "").strip(),
+        estado="activa",
         vendedor_id=request.usuario_id,
     )
     db.session.add(tienda)
     db.session.commit()
+
+    print("TIENDA CREADA:")
+    print(tienda.to_dict())
 
     return jsonify(tienda.to_dict()), 201

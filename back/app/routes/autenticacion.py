@@ -54,7 +54,8 @@ def registro():
         ),
         201,
     )
-
+#con esta linea funciona el inicio de sesion
+@auth_bp.route("/api/login", methods=["POST"])
 def login():
     datos = request.get_json()
     if not datos:

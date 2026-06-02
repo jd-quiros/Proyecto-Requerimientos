@@ -17,9 +17,9 @@ class Tienda(db.Model):
     )  # pendiente, activa, suspendida
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relación con Usuario (un vendedor, una tienda)
+    # Relación con Usuario (un vendedor, puede tener varias tiendas)
     vendedor_id = db.Column(
-        db.Integer, db.ForeignKey("usuarios.id"), unique=True, nullable=False
+        db.Integer, db.ForeignKey("usuarios.id"), nullable=False
     )
     vendedor = db.relationship("Usuario", backref="tienda")
 
