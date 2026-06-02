@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { CrearTiendaModal } from '../components/CrearTiendaModal';
 import api from '../services/api';
 
+
 export function Inicio() {
   const { usuario, cerrarSesion } = useAuth();
   const navigate = useNavigate();
@@ -45,21 +46,29 @@ export function Inicio() {
 
           <div className="flex items-center gap-4">
             <ToggleTema />
+              {usuario ? (
+                <>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {usuario.nombre}
+                  </span>
 
-            {usuario ? (
-              <>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {usuario.nombre}
-                </span>
+                  {usuario.rol === "cliente" && (
+                    <button
+                      onClick={() => navigate("/carrito")}
+                      className="text-sm bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition cursor-pointer"
+                    >
+                      Carrito
+                    </button>
+                  )}
 
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-red-600 dark:text-red-400 hover:underline cursor-pointer"
-                >
-                  Cerrar Sesión
-                </button>
-              </>
-            ) : (
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm text-red-600 dark:text-red-400 hover:underline cursor-pointer"
+                  >
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
               <Link
                 to="/login"
                 className="text-sm text-black dark:text-white font-medium hover:underline"

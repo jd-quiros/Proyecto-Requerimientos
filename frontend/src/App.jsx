@@ -7,7 +7,7 @@ import { Registro } from './pages/Registro';
 import { Inicio } from './pages/Inicio';
 import { Tienda } from './pages/Tienda';
 import { Producto } from './pages/Producto';
-
+import Carrito from './pages/Carrito';
 function App() {
   return (
     <ThemeProvider>
@@ -20,6 +20,7 @@ function App() {
             <Route path="/tienda/:id" element={<Tienda />} />
             <Route path="/producto/:id" element={<Producto />} />
             <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/carrito" element={<Carrito />} />
           </Routes>
         </AuthProvider>
       </LanguageProvider>
