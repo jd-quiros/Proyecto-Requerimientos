@@ -54,3 +54,35 @@ def registro():
         ),
         201,
     )
+
+def login():
+    datos = request.get_json()
+    if not datos:
+        return jsonify({"error":"JSON invalido"}),400
+    email = datos.get("email").strip().lower()
+    password = datos.get("password")
+    if(not email or not password): 
+        return jsonify({"error":"Debe ingresar todos los datos"}),400
+    usuario = Usuario.query.filter_by(email = email).first()
+    if(not usuario): 
+        return jsonify({"error":"Credenciales invalidas"}),401
+    
+    if(not check_password(password,usuario.password_hash)):
+        return jsonify({"error":"Credenciales invalidas"}),401
+    
+    token = generar_token(usuario.id,usuario.rol)
+    return jsonify({
+        "mensaje":"Login exitoso",
+        "token":token,
+        "usuario":{
+            "id":usuario.id,
+            "nombre":usuario.nombre,
+            "email":usuario.email,
+            "rol":usuario.rol
+        }
+    }),200
+
+    
+    
+
+
