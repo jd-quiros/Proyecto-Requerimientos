@@ -1,20 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "../services/api";
 
 function Carrito() {
-    const [productos, setProductos] = useState([
-        {
-            id: 1,
-            nombre: "Laptop",
-            precio: 500000,
-            cantidad: 1
-        },
-        {
-            id: 2,
-            nombre: "Mouse",
-            precio: 15000,
-            cantidad: 2
-        }
-    ]);
+    const [productos, setProductos] = useState([]);
+
+    useEffect(() => {
+        api.get("/carrito")
+            .then((res) => {
+                console.log(res.data);
+                setProductos(res.data);
+            })
+            .catch((err) => console.error(err));
+    }, []);
 
     const eliminarProducto = (id) => {
         setProductos(
@@ -29,58 +26,80 @@ function Carrito() {
     );
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h1>Carrito de Compras</h1>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10">
+            <div className="max-w-5xl mx-auto px-4">
 
-            {productos.length === 0 ? (
-                <p>El carrito está vacío.</p>
-            ) : (
-                <>
-                    <table border="1" cellPadding="10">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Precio</th>
-                                <th>Cantidad</th>
-                                <th>Subtotal</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
+                <h1 className="text-4xl font-bold text-center mb-10 text-gray-900 dark:text-white">
+                    🛒 Carrito de Compras
+                </h1>
 
-                        <tbody>
+                {productos.length === 0 ? (
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 text-center">
+                        <p className="text-gray-500 dark:text-gray-400 text-lg">
+                            Tu carrito está vacío.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="space-y-4">
                             {productos.map((producto) => (
-                                <tr key={producto.id}>
-                                    <td>{producto.nombre}</td>
-                                    <td>₡{producto.precio}</td>
-                                    <td>{producto.cantidad}</td>
-                                    <td>
-                                        ₡
-                                        {producto.precio *
-                                            producto.cantidad}
-                                    </td>
-                                    <td>
-                                        <button
-                                            onClick={() =>
-                                                eliminarProducto(
-                                                    producto.id
-                                                )
-                                            }
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </td>
-                                </tr>
+                                <div
+                                    key={producto.id}
+                                    className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 flex justify-between items-center"
+                                >
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                            {producto.nombre}
+                                        </h2>
+
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            Precio: ₡{producto.precio}
+                                        </p>
+
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            Cantidad: {producto.cantidad}
+                                        </p>
+
+                                        <p className="font-bold text-green-600">
+                                            Subtotal: ₡
+                                            {producto.precio *
+                                                producto.cantidad}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            eliminarProducto(producto.id)
+                                        }
+                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
 
-                    <h2>Total: ₡{total}</h2>
+                        <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    Total
+                                </h2>
 
-                    <button>
-                        Proceder al pago
-                    </button>
-                </>
-            )}
+                                <span className="text-3xl font-bold text-green-600">
+                                    ₡{total}
+                                </span>
+                            </div>
+
+                            <button
+                                className="mt-6 w-full bg-black hover:bg-gray-800 text-white py-3 rounded-xl text-lg font-semibold transition"
+                            >
+                                Proceder al pago
+                            </button>
+                        </div>
+                    </>
+                )}
+
+            </div>
         </div>
     );
 }
