@@ -22,6 +22,9 @@ cd back
 # Crear entorno virtual
 python -m venv venv
 
+# opcion alternativa para Jota
+py -3.14 -m venv venv
+
 # Activar entorno virtual
 # Linux / Mac:
 source venv/bin/activate

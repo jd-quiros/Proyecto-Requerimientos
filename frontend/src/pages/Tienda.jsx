@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ToggleTema } from '../components/ToggleTema';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { CrearProductoModal } from '../components/CrearProductoModal';
 
 export function Tienda() {
   const { id } = useParams();
@@ -11,8 +12,8 @@ export function Tienda() {
   const { usuario, cerrarSesion } = useAuth();
   const [tienda, setTienda] = useState(null);
   const [productos, setProductos] = useState([]);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [cargando, setCargando] = useState(true);
-
   useEffect(() => {
     api.get(`/tiendas/${id}`)
       .then(res => {
@@ -45,6 +46,7 @@ export function Tienda() {
       </div>
     );
   }
+  const esDueno = usuario && usuario.id === tienda.vendedor_id;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -61,7 +63,7 @@ export function Tienda() {
             >
               {idioma === 'es' ? 'EN' : 'ES'}
             </button>
-            <ThemeToggle />
+            <ToggleTema />
             <span className="text-sm text-gray-600 dark:text-gray-400">{usuario?.nombre}</span>
             <button
               onClick={() => {
@@ -114,9 +116,28 @@ export function Tienda() {
 
       {/* Grid de productos */}
       <main className="container mx-auto px-4 py-12">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+
+      <div className="flex justify-between items-center mb-6">
+
+      <div className="flex justify-between items-center mb-6">
+
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
           {idioma === 'es' ? 'Productos' : 'Products'}
         </h2>
+
+      </div>
+
+        {esDueno && (
+          <button
+            onClick={() => setMostrarModal(true)}
+            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+          >
+            + Nuevo Producto
+          </button>
+        )}
+
+      </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {productos.map((producto) => (
             <Link
@@ -148,9 +169,9 @@ export function Tienda() {
                     {producto.descripcion || ''}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-900 dark:text-white">
-                      ${producto.precio.toFixed(2)}
-                    </span>
+                  <span className="text-lg font-bold text-gray-900 dark:text-white">
+                    ₡{Number(producto.precio || 0).toFixed(2)}
+                  </span>
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       producto.stock > 0
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
@@ -179,6 +200,20 @@ export function Tienda() {
           </div>
         )}
       </main>
+
+    {mostrarModal && (
+      <CrearProductoModal
+        tiendaId={tienda.id}
+        onClose={() => setMostrarModal(false)}
+        onProductoCreado={(nuevoProducto) => {
+          setProductos((prev) => [
+            ...prev,
+            nuevoProducto
+          ]);
+        }}
+      />
+    )}
+
     </div>
   );
 }
