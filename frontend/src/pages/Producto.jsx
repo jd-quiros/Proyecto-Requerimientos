@@ -62,7 +62,7 @@ export function Producto() {
             >
               {idioma === 'es' ? 'EN' : 'ES'}
             </button>
-            <ThemeToggle />
+            <ToggleTema />
             <span className="text-sm text-gray-600 dark:text-gray-400">{usuario?.nombre}</span>
             <button
               onClick={() => {
