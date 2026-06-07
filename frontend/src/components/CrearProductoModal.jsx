@@ -3,39 +3,89 @@ import api from '../services/api';
 
 export function CrearProductoModal({
   onClose,
-  onProductoCreado
+  productoEditar = null,
+  onProductoCreado,
+  onProductoActualizado
 }) {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [precio, setPrecio] = useState('');
-  const [stock, setStock] = useState('');
-  const [imagen, setImagen] = useState('');
+
+    const [nombre, setNombre] = useState(
+      productoEditar?.nombre || ''
+    );
+
+    const [descripcion, setDescripcion] = useState(
+      productoEditar?.descripcion || ''
+    );
+
+    const [precio, setPrecio] = useState(
+      productoEditar?.precio || ''
+    );
+
+    const [stock, setStock] = useState(
+      productoEditar?.stock || ''
+    );
+
+    const [imagen, setImagen] = useState(
+      productoEditar?.imagen || ''
+    );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await api.post('/productos', {
+
+      const datos = {
         nombre,
         descripcion,
         precio: Number(precio),
         stock: Number(stock),
         imagen
-      });
+      };
 
-      alert('Producto creado correctamente');
+      let response;
 
-      onProductoCreado(response.data);
+      if (productoEditar) {
 
+        response = await api.put(
+          `/productos/${productoEditar.id}`,
+          datos
+        );
+
+        alert('Producto actualizado correctamente');
+
+      } else {
+
+        response = await api.post(
+          '/productos',
+          datos
+        );
+
+        alert('Producto creado correctamente');
+      }
+
+      if (productoEditar) {
+
+        onProductoActualizado(
+          response.data
+        );
+
+      } else {
+
+        onProductoCreado(
+          response.data
+        );
+
+      }
       onClose();
 
     } catch (error) {
+
       console.error(error);
 
       alert(
         error.response?.data?.error ||
-        'Error al crear producto'
+        'Error al guardar producto'
       );
+
     }
   };
 
@@ -47,7 +97,9 @@ export function CrearProductoModal({
         <div className="flex justify-between items-center mb-6">
 
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            Agregar Producto
+            {productoEditar
+              ? 'Editar Producto'
+              : 'Agregar Producto'}
           </h2>
 
           <button
@@ -143,7 +195,9 @@ export function CrearProductoModal({
               type="submit"
               className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800"
             >
-              Guardar Producto
+              {productoEditar
+                ? 'Guardar Cambios'
+                : 'Guardar Producto'}
             </button>
 
             <button

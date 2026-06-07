@@ -14,6 +14,14 @@ export function Tienda() {
   const [productos, setProductos] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [cargando, setCargando] = useState(true);
+  const [mostrarModalProducto, setMostrarModalProducto] = useState(false);
+  const [productoEditar, setProductoEditar] = useState(null);
+
+  const abrirEdicion = (producto) => {
+  setProductoEditar(producto);
+  setMostrarModalProducto(true);
+  };
+
   useEffect(() => {
     api.get(`/tiendas/${id}`)
       .then(res => {
@@ -172,6 +180,7 @@ export function Tienda() {
                   <span className="text-lg font-bold text-gray-900 dark:text-white">
                     ₡{Number(producto.precio || 0).toFixed(2)}
                   </span>
+
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       producto.stock > 0
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
@@ -182,6 +191,52 @@ export function Tienda() {
                         : (idioma === 'es' ? 'Agotado' : 'Sold out')
                       }
                     </span>
+
+                {esDueno && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      abrirEdicion(producto);
+                    }}
+                    className="w-full mt-2 border rounded-lg py-2"
+                  >
+                    Editar
+                  </button>
+                )}
+
+                {esDueno && (
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+
+                      if (!confirm('¿Eliminar producto?')) {
+                        return;
+                      }
+
+                      try {
+
+                        await api.delete(
+                          `/productos/${producto.id}`
+                        );
+
+                        setProductos(
+                          productos.filter(
+                            p => p.id !== producto.id
+                          )
+                        );
+
+                      } catch {
+
+                        alert('Error eliminando');
+
+                      }
+                    }}
+                    className="w-full mt-2 bg-red-500 text-white rounded-lg py-2"
+                  >
+                    Eliminar
+                  </button>
+                )}
+
                   </div>
                 </div>
               </div>
@@ -213,6 +268,31 @@ export function Tienda() {
         }}
       />
     )}
+
+    {
+      mostrarModalProducto && (
+        <CrearProductoModal
+          productoEditar={productoEditar}
+          onClose={() => {
+            setMostrarModalProducto(false);
+            setProductoEditar(null);
+          }}
+          onProductoActualizado={(productoActualizado) => {
+
+            setProductos(
+              productos.map((p) =>
+                p.id === productoActualizado.id
+                  ? productoActualizado
+                  : p
+              )
+            );
+
+            setMostrarModalProducto(false);
+            setProductoEditar(null);
+          }}
+        />
+      )
+    }
 
     </div>
   );
