@@ -1,14 +1,16 @@
-from db.conexion import db
+from ..db.conexion import db
 
-class carrito(db.Model):
+class Carrito(db.Model):
     __tablename__ = "carritos"
     id = db.Column(db.Integer, primary_key=True)
-    id_usuario = db.Column(db.Integer,foregein_key = True)
+    id_usuario = db.Column(db.Integer,nullable = False)
+    id_tienda = db.Column(db.Integer,nullable = False)
     monto = db.Column(db.Float, nullable=False)
 
     def to_dict(self):
         return {
             "id":self.id,
             "id_usuario": self.id_usuario,
+            "id_tienda":self.id_tienda,
             "monto": self.monto
         }

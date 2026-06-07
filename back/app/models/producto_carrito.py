@@ -1,8 +1,8 @@
-from db.conexion import db
-class pedidos(db.Model):
+from ..db.conexion import db
+class Producto_carrito(db.Model):
     __tablename__ = "producto_carrito"
     id_carrito = db.Column(db.Integer,primary_key = True)
-    id_producto = db.Column(db.Integer,primary = True)
+    id_producto = db.Column(db.Integer,primary_key = True)
     cantidad = db.Column(db.Integer,nullable = False)
     def to_dict(self):
         return {

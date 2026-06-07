@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
 import api from "../services/api";
-
+import { useState, useEffect } from "react";
 function Carrito() {
     const [productos, setProductos] = useState([]);
 
@@ -13,10 +12,35 @@ function Carrito() {
             .catch((err) => console.error(err));
     }, []);
 
-    const eliminarProducto = (id) => {
-        setProductos(
-            productos.filter((producto) => producto.id !== id)
-        );
+    const eliminarProducto = async (id) => {
+        try {
+            await api.delete(`/eliminar/${id}`);
+
+            setProductos(
+                productos.filter((producto) => producto.id !== id)
+            );
+        } catch (err) {
+            console.error(err);
+            alert("Error al eliminar producto");
+        }
+    };
+
+    const comprarCarrito = async () => {
+        try {
+            console.log("CLICK comprar carrito");
+            const res = await api.post("/confirmar_pedido");
+
+            alert(res.data.mensaje);
+
+            setProductos([]);
+        } catch (err) {
+            console.error(err);
+
+            alert(
+                err.response?.data?.error ||
+                "Error al confirmar pedido"
+            );
+        }
     };
 
     const total = productos.reduce(
@@ -62,15 +86,12 @@ function Carrito() {
 
                                         <p className="font-bold text-green-600">
                                             Subtotal: ₡
-                                            {producto.precio *
-                                                producto.cantidad}
+                                            {producto.precio * producto.cantidad}
                                         </p>
                                     </div>
 
                                     <button
-                                        onClick={() =>
-                                            eliminarProducto(producto.id)
-                                        }
+                                        onClick={() => eliminarProducto(producto.id)}
                                         className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
                                     >
                                         Eliminar
@@ -91,9 +112,10 @@ function Carrito() {
                             </div>
 
                             <button
+                                onClick={comprarCarrito}
                                 className="mt-6 w-full bg-black hover:bg-gray-800 text-white py-3 rounded-xl text-lg font-semibold transition"
                             >
-                                Proceder al pago
+                                Confirmar pedido
                             </button>
                         </div>
                     </>

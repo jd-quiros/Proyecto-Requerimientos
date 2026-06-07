@@ -1,10 +1,19 @@
-from models import carrito, producto_carrito, producto, usuario, tienda
+from ..models.producto import Producto
+from ..models.carrito import Carrito
+from ..models.usuario import Usuario
+from ..models.notificacion import Notificacion
+from ..models.producto_carrito import Producto_carrito
 from flask import Blueprint, jsonify, session, request
-from db.conexion import db
+from ..servicios.token import verificar_token
+from ..db.conexion import db
+from datetime import date
 
-carrito_bp = Blueprint("carrito", __name__)
+carrito_bp = Blueprint(
+    "carrito",
+    __name__
+)
 def crear_carrito(id_usuario):
-    nuevo = carrito(
+    nuevo = Carrito(
         id_usuario=id_usuario,
         monto=0
     )
@@ -12,15 +21,30 @@ def crear_carrito(id_usuario):
     db.session.commit()
     return nuevo
 
-@carrito_bp.route("/", methods=["GET"])
+
+
+def obtener_usuario_token():
+    auth = request.headers.get("Authorization")
+
+    if not auth:
+        return None
+
+    try:
+        token = auth.split(" ")[1]
+        payload = verificar_token(token)
+
+        return int(payload["sub"])
+    except Exception:
+        return None
+
+@carrito_bp.route("/api/carrito", methods=["GET"])
+
 def ver_carrito():
-    id_usuario = session.get("id_usuario")
-
+    id_usuario = obtener_usuario_token()
     if not id_usuario:
-        return jsonify({"error": "Sesion invalida"}), 401
-
-    user = usuario.query.filter_by(
-        id_usuario=id_usuario
+        return jsonify({"error": "Token invalido"}), 401
+    user = Usuario.query.filter_by(
+        id=id_usuario
     ).first()
 
     if not user:
@@ -31,30 +55,47 @@ def ver_carrito():
             "error": "Su rol no tiene acceso a estas funciones de la aplicacion"
         }), 401
 
-    krrito = carrito.query.filter_by(
+    krrito = Carrito.query.filter_by(
         id_usuario=id_usuario
     ).first()
 
     if not krrito:
         krrito = crear_carrito(id_usuario)
 
-    productos = producto_carrito.query.filter_by(
+    objetos = Producto_carrito.query.filter_by(
         id_carrito=krrito.id
     ).all()
 
-    return jsonify([
-        p.to_dict()
-        for p in productos
-    ])
+    respuesta = []
+
+    for objeto in objetos:
+        prod = Producto.query.filter_by(
+            id=objeto.id_producto
+        ).first()
+
+        if not prod:
+            continue
+
+        respuesta.append({
+            "id": prod.id,
+            "nombre": prod.nombre,
+            "precio": prod.precio,
+            "cantidad": objeto.cantidad,
+            "stock": prod.stock,
+            "imagen": prod.imagen
+        })
+
+    return jsonify(respuesta), 200
 
 
-@carrito_bp.route("/eliminar/<int:id_producto>", methods=["DELETE"])
+@carrito_bp.route("/api/eliminar/<int:id_producto>", methods=["DELETE"])
 def eliminar_producto(id_producto):
-    id_usuario = session.get("id_usuario")
+    id_usuario = obtener_usuario_token()
+    print(f"el id_usuario es {id_usuario}")
     if not id_usuario:
         return jsonify({"error": "Sesion invalida"}), 401
 
-    krrito = carrito.query.filter_by(
+    krrito = Carrito.query.filter_by(
         id_usuario=id_usuario
     ).first()
 
@@ -63,7 +104,7 @@ def eliminar_producto(id_producto):
             "error": "Usted no tiene un carrito asignado"
         }), 400
 
-    objeto = producto_carrito.query.filter_by(
+    objeto = Producto_carrito.query.filter_by(
         id_carrito=krrito.id,
         id_producto=id_producto
     ).first()
@@ -73,7 +114,7 @@ def eliminar_producto(id_producto):
             "error": "Producto no encontrado en el carrito"
         }), 404
 
-    product = producto.query.filter_by(
+    product = Producto.query.filter_by(
         id_producto=id_producto
     ).first()
 
@@ -87,7 +128,7 @@ def eliminar_producto(id_producto):
     }), 200
 
 
-@carrito_bp.route("/agregar/<int:id_producto>", methods=["POST"])
+@carrito_bp.route("/api/agregar/<int:id_producto>", methods=["POST"])
 def agregar_producto(id_producto):
     datos = request.get_json()
 
@@ -99,8 +140,8 @@ def agregar_producto(id_producto):
     if not cantidad or cantidad <= 0:
         return jsonify({"error": "Cantidad invalida"}), 400
 
-    product = producto.query.filter_by(
-        id_producto=id_producto
+    product = Producto.query.filter_by(
+        id=id_producto
     ).first()
 
     if not product:
@@ -109,19 +150,19 @@ def agregar_producto(id_producto):
     if cantidad > product.stock:
         return jsonify({"error": "No hay suficientes unidades"}), 400
 
-    id_usuario = session.get("id_usuario")
-
+    id_usuario = obtener_usuario_token()
+    print(f"el id_usuario es: {id_usuario}")
     if not id_usuario:
         return jsonify({"error": "Sesion invalida"}), 401
 
-    carrito_usuario = carrito.query.filter_by(
+    carrito_usuario = Carrito.query.filter_by(
         id_usuario=id_usuario
     ).first()
 
     if not carrito_usuario:
         carrito_usuario = crear_carrito(id_usuario)
 
-    existente = producto_carrito.query.filter_by(
+    existente = Producto_carrito.query.filter_by(
         id_carrito=carrito_usuario.id,
         id_producto=id_producto
     ).first()
@@ -135,7 +176,7 @@ def agregar_producto(id_producto):
         existente.cantidad += cantidad
 
     else:
-        nuevo = producto_carrito(
+        nuevo = Producto_carrito(
             id_producto=id_producto,
             id_carrito=carrito_usuario.id,
             cantidad=cantidad
@@ -144,9 +185,78 @@ def agregar_producto(id_producto):
         db.session.add(nuevo)
 
     carrito_usuario.monto += product.precio * cantidad
-
     db.session.commit()
-
     return jsonify({
         "mensaje": "Producto agregado al carrito"
     }), 201
+
+def notificar(id_carrito):
+    carrito_pedido = Carrito.query.filter_by(
+        id = id_carrito
+    ).first()
+    if not carrito_pedido: return jsonify({"error":"Carrito no encontrado"})
+
+    objetos_carrito = Producto_carrito.query.filter_by(
+        id_carrito = id_carrito
+    ).all()
+    for objeto in objetos_carrito:
+        obj = Producto.query.get(objeto.id_producto)
+        if not obj: continue
+        noti = Notificacion(
+            id_producto = objeto.id_producto,
+            id_vendedor = obj.tienda_id,
+            mensaje = f"ha vendido {objeto.cantidad} unidades de {obj.nombre}"
+        )
+        db.session.add(noti)
+    db.session.commit()
+
+@carrito_bp.route("/api/confirmar_pedido", methods=["POST"])
+def confirmar_pedido():
+    id_usuario = obtener_usuario_token()
+    print(f"Procesando pedido de usuario :{id_usuario}")
+    carrito_pedido = Carrito.query.filter_by(
+        id_usuario = id_usuario
+    ).first()
+
+    if not carrito_pedido:
+        return jsonify({"error": "Carrito no encontrado"}), 404
+
+    objetos = Producto_carrito.query.filter_by(
+        id_carrito=carrito_pedido.id
+    ).all()
+    if not objetos:
+        return jsonify({"error":"Carrito vacio"})
+    # Validar stock
+    for objeto in objetos:
+        prod = Producto.query.get(objeto.id_producto)
+
+        if not prod:
+            return jsonify({"error": "Producto no encontrado"}), 404
+
+        if prod.stock < objeto.cantidad:
+            return jsonify({
+                "error": f"Stock insuficiente para {prod.nombre}"
+            }), 400
+
+    # Descontar stock y notificar
+    for objeto in objetos:
+        prod = Producto.query.get(objeto.id_producto)
+
+        prod.stock -= objeto.cantidad
+
+        noti = Notificacion(
+            id_producto=prod.id,
+            id_vendedor=prod.tienda_id,
+            mensaje=f"Ha vendido {objeto.cantidad} unidades",
+            fecha = date.today()
+        )
+
+        db.session.add(noti)
+
+    # Vaciar carrito
+    for objeto in objetos:
+        db.session.delete(objeto)
+
+    db.session.commit()
+
+    return jsonify({"mensaje": "Pedido confirmado"}), 200
