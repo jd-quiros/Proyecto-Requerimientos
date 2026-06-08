@@ -69,6 +69,12 @@ const registrarUsuario = async (nombre, email, password, rol) => {
     setUsuario(null);
   };
 
+  const actualizarUsuario = (datos) => {
+    const actualizado = { ...usuario, ...datos };
+    localStorage.setItem('usuario', JSON.stringify(actualizado));
+    setUsuario(actualizado);
+  };
+
   const valor = {
     usuario,
     token,
@@ -76,6 +82,7 @@ const registrarUsuario = async (nombre, email, password, rol) => {
     iniciarSesion,
     registrarUsuario,
     cerrarSesion,
+    actualizarUsuario,
     estaAutenticado: !!token,
   };
 

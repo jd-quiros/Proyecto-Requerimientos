@@ -1,0 +1,205 @@
+SILK ROAD — CHANGELOG
+Sesión de desarrollo: junio 2026
+================================================================================
+
+ARCHIVOS NUEVOS
+--------------------------------------------------------------------------------
+
+back/seed.py
+  Script para poblar la base de datos con datos de prueba. Elimina y recrea
+  todas las tablas, crea 4 usuarios (admin, 2 vendedores, 1 cliente), 2 tiendas
+  activas, 1 tienda pendiente y 8 productos.
+  Cuentas: admin@admin.com, carlos@carlos.com, maria@maria.com, jose@jose.com
+  Contraseña de todas: 123456
+
+back/app/models/pedido.py
+  Dos modelos: Pedido (id, id_usuario, fecha, monto_total) y PedidoProducto
+  (id_pedido, id_producto, nombre_producto, precio, cantidad).
+  Permiten guardar el historial de compras al confirmar un pedido.
+
+back/app/routes/admin.py
+  Blueprint con todos los endpoints del panel de administración:
+  GET  /api/admin/stats       — estadísticas globales (usuarios, tiendas, ventas)
+  GET  /api/admin/usuarios    — listar todos los usuarios
+  PUT  /api/admin/usuarios/:id — cambiar rol o nombre de un usuario
+  DEL  /api/admin/usuarios/:id — eliminar usuario
+  GET  /api/admin/tiendas     — listar todas las tiendas con info del vendedor
+  PUT  /api/admin/tiendas/:id/estado — aprobar/suspender tienda
+  GET  /api/admin/productos   — listar todos los productos
+  DEL  /api/admin/productos/:id — eliminar cualquier producto
+
+frontend/src/components/Navbar.jsx
+  Barra de navegación compartida usada en todas las páginas. Incluye:
+  logo, toggle de idioma (ES/EN), toggle de tema, nombre de usuario, Mi Perfil,
+  carrito con badge de contador (clientes), Mis Pedidos (clientes), Mi Tienda
+  (vendedores), Panel Admin (admins) y Cerrar Sesión.
+
+frontend/src/components/EditarTiendaModal.jsx
+  Modal para que el vendedor edite nombre, descripción, categoría e imagen
+  de su tienda. Prellenado con los datos actuales. Preview de imagen en tiempo
+  real. Llama a PUT /api/tiendas/:id.
+
+frontend/src/pages/Admin.jsx
+  Panel de administración con sidebar de 4 secciones:
+  - Dashboard: tarjetas de stats (usuarios por rol, tiendas por estado,
+    revenue total, mejor producto, tienda líder)
+  - Usuarios: tabla con cambio de rol (click en badge) y eliminación
+  - Tiendas: tabla con botones Aprobar/Suspender/Pendiente por tienda
+  - Productos: tabla con filtro por tienda (dropdown) y eliminación
+
+frontend/src/pages/HistorialPedidos.jsx
+  Lista los pedidos realizados por el cliente. Muestra fecha, total y
+  desglose de productos por pedido. Llama a GET /api/historial.
+
+frontend/src/pages/PedidosTienda.jsx
+  Lista los pedidos recibidos en la tienda del vendedor. Muestra comprador
+  (nombre y email), fecha, productos y totales. Llama a GET /api/mis-pedidos.
+
+frontend/src/pages/Perfil.jsx
+  Permite al usuario ver y editar nombre, email y contraseña. Para cambiar
+  la contraseña se requiere ingresar la contraseña actual. Llama a
+  GET y PUT /api/perfil. Actualiza el nombre en el Navbar sin recargar.
+
+frontend/src/pages/Explorar.jsx
+  Catálogo completo de todos los productos de la plataforma. Filtros:
+  categoría (dropdown con categorías únicas detectadas) y orden
+  (A-Z, Z-A, precio menor-mayor, precio mayor-menor). Grid de 5 columnas.
+  Accesible desde el botón "Explorar todos los productos" en el home.
+
+frontend/src/context/LanguageContext.jsx
+  Contexto de internacionalización. Provee t() para traducciones y
+  toggleIdioma() para cambiar entre ES/EN en caliente.
+
+frontend/src/i18n/es.json
+frontend/src/i18n/en.json
+  Archivos de traducciones para todos los textos de la interfaz, organizados
+  por sección: login, register, home, store, storeDashboard, storeOrders,
+  admin, cart, orderHistory, profile.
+
+
+ARCHIVOS MODIFICADOS
+--------------------------------------------------------------------------------
+
+back/app/app.py
+  + Importa Pedido, PedidoProducto
+  + Registra el blueprint admin_bp
+
+back/app/models/producto.py
+  + Campo "categoria" en to_dict() — expone la categoría de la tienda padre
+    para que el frontend pueda filtrar sin llamadas extra.
+
+back/app/models/carrito.py
+  - Eliminada columna id_tienda (nullable=False) que causaba crash al crear
+    un carrito nuevo, ya que la ruta no la proporcionaba.
+
+back/app/routes/tiendas.py
+  + Estado inicial de tienda cambiado de "activa" a "pendiente" (RF-07/CU-06)
+  + GET  /api/mis-tiendas — tiendas propias del vendedor en cualquier estado
+  + GET  /api/mis-pedidos — pedidos agrupados por pedido para la tienda del vendedor
+  + GET  /api/mi-tienda/stats — revenue, total pedidos, mejor producto, stock bajo
+  + PUT  /api/tiendas/:id — editar tienda (nombre, descripción, categoría, imagen)
+
+back/app/routes/autenticacion.py
+  + GET /api/perfil — datos del usuario autenticado
+  + PUT /api/perfil — editar nombre, email y contraseña (requiere contraseña actual)
+
+back/app/routes/carrito.py
+  + PUT  /api/actualizar/:id — actualizar cantidad de un ítem en el carrito
+  + GET  /api/historial — historial de pedidos del cliente
+  ~ confirmar_pedido: ahora guarda Pedido + PedidoProducto antes de vaciar el carrito
+  ~ eliminar_producto: corregido bug (usaba filter_by en lugar de get)
+
+back/app/routes/productos.py
+  ~ Sin cambios de lógica; el to_dict() del modelo ahora incluye "categoria"
+
+frontend/src/App.jsx
+  + Rutas: /carrito, /historial, /perfil, /mis-pedidos, /admin, /explorar
+  ~ Wildcard * movido al final para no interceptar rutas válidas
+
+frontend/src/context/AuthContext.jsx
+  + actualizarUsuario(datos): actualiza estado y localStorage sin cerrar sesión.
+    Usado por Perfil.jsx para reflejar cambios de nombre en el Navbar al instante.
+
+frontend/src/pages/IniciarSesion.jsx
+  + Toggle de idioma (ES/EN) en la esquina superior derecha
+  ~ Todos los textos migrados a t() para soporte i18n completo
+
+frontend/src/pages/Registro.jsx
+  + Toggle de idioma (ES/EN) en la esquina superior derecha
+  ~ Todos los textos migrados a t() para soporte i18n completo
+
+frontend/src/pages/Inicio.jsx
+  ~ Reemplaza header propio por <Navbar />
+  + Barra de búsqueda de productos con filtro de categoría
+  + Botón "Explorar todos los productos" → /explorar
+  + Notificación en esquina inferior derecha para vendedores con pedidos
+    pendientes (muestra total, link a /mis-pedidos, botón X para cerrar)
+  ~ Botón "Crear Tienda" visible solo para vendedores sin tienda activa
+
+frontend/src/pages/Tienda.jsx
+  ~ Reemplaza header propio por <Navbar />
+  + Banner amarillo cuando la tienda está en estado "pendiente" (solo dueño)
+  + Banner rojo cuando la tienda está en estado "suspendida" (solo dueño)
+  + Botón "Editar" junto al nombre de la tienda (solo dueño) → EditarTiendaModal
+  + Tabs para el dueño: Productos | Dashboard | Pedidos recibidos
+    - Dashboard: tarjetas de revenue, pedidos, mejor producto, alertas de stock bajo
+    - Pedidos recibidos: lista inline de pedidos con detalle de compradores
+  ~ Botones Editar/Eliminar de producto rediseñados (fila de dos botones bajo la card)
+
+frontend/src/pages/Producto.jsx
+  ~ Reemplaza header propio por <Navbar />
+
+frontend/src/pages/Carrito.jsx
+  ~ Reemplaza header propio por <Navbar />
+  + Botones +/- para modificar cantidad de cada ítem (respeta stock máximo)
+  + Link "Volver al inicio" y "Ver mis pedidos"
+
+frontend/src/components/Navbar.jsx (nuevo — ver sección ARCHIVOS NUEVOS)
+  + Badge rojo con contador de ítems en el botón del carrito (clientes)
+    El contador suma todas las cantidades del carrito al iniciar sesión.
+
+
+ELIMINACIONES / CORRECCIONES DE BUGS
+--------------------------------------------------------------------------------
+
+- Bug: Carrito no se creaba — columna id_tienda NOT NULL sin valor por defecto.
+  Fix: columna eliminada del modelo Carrito.
+
+- Bug: Eliminar producto del carrito devolvía AttributeError.
+  Fix: cambiado Producto.query.filter_by(id_producto=id) → Producto.query.get(id).
+
+- Bug: Ruta wildcard * antes de /carrito en App.jsx capturaba la navegación.
+  Fix: wildcard movido al final del listado de rutas.
+
+- Bug: Al crear una tienda se establecía estado="activa" ignorando el flujo
+  de aprobación definido en CU-06.
+  Fix: estado cambiado a "pendiente" en la ruta POST /api/tiendas.
+
+- Nota: models/notificacion.py existe en el repositorio pero no está en uso.
+  Fue un archivo creado en una iteración anterior del proyecto.
+
+
+REQUERIMIENTOS CUBIERTOS (según requisitos.tex)
+--------------------------------------------------------------------------------
+
+RF-01  Registro de usuario                    COMPLETO
+RF-02  Inicio de sesión                       COMPLETO
+RF-03  Exploración de productos               COMPLETO (/explorar + búsqueda)
+RF-04  Búsqueda de productos                  COMPLETO
+RF-05  Carrito de compras                     COMPLETO (agregar/modificar/eliminar)
+RF-06  Creación de pedidos                    COMPLETO (+ notificación al vendedor)
+RF-07  Creación de tienda                     COMPLETO (flujo pendiente → aprobación)
+RF-08  Gestión de productos                   COMPLETO (crear/editar/eliminar)
+RF-09  Visualización de pedidos recibidos     COMPLETO
+RF-10  Panel de administración                COMPLETO (sidebar 4 secciones)
+RF-11  Gestión de perfil                      COMPLETO
+RF-12  Cerrar sesión                          COMPLETO
+
+Extras implementados (fuera del documento ERS):
+  - Modo oscuro / claro (toggle global)
+  - Internacionalización completa ES/EN
+  - Dashboard de tienda (revenue, mejor producto, alertas de stock)
+  - Estadísticas globales en panel admin (tienda líder, producto más vendido)
+  - Contador de ítems en el carrito (badge en Navbar)
+  - Edición de tienda (nombre, descripción, categoría, imagen)
+  - Filtro de productos por tienda en panel admin

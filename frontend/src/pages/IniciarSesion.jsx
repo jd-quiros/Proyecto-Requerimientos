@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ToggleTema } from '../components/ToggleTema';
 
 export function IniciarSesion() {
@@ -8,23 +9,30 @@ export function IniciarSesion() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { iniciarSesion } = useAuth();
+  const { t, idioma, toggleIdioma } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     const resultado = await iniciarSesion(email, password);
     if (resultado.exito) {
       navigate('/');
     } else {
-      setError(resultado.error || 'Credenciales inválidas');
+      setError(resultado.error || t('login.errorCredentials'));
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 relative">
-      <div className="absolute top-4 right-4">
+      {/* Controles esquina superior derecha */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <button
+          onClick={toggleIdioma}
+          className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
+        >
+          {idioma === 'es' ? 'EN' : 'ES'}
+        </button>
         <ToggleTema />
       </div>
 
@@ -38,23 +46,23 @@ export function IniciarSesion() {
         </div>
 
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">
-          Iniciar Sesión
+          {t('login.title')}
         </h1>
         <p className="text-center text-gray-500 dark:text-gray-400 mb-6">
-          Accede a tu cuenta de Silk Road
+          {t('login.subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Correo Electrónico
+              {t('login.email')}
             </label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder={t('login.emailPlaceholder')}
               required
               className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
             />
@@ -62,14 +70,14 @@ export function IniciarSesion() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Contraseña
+              {t('login.password')}
             </label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={t('login.passwordPlaceholder')}
               required
               className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
             />
@@ -85,14 +93,14 @@ export function IniciarSesion() {
             type="submit"
             className="w-full py-2.5 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors cursor-pointer"
           >
-            Iniciar Sesión
+            {t('login.submit')}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-          ¿No tienes cuenta?{' '}
+          {t('login.noAccount')}{' '}
           <Link to="/registro" className="text-black dark:text-white font-medium hover:underline">
-            Regístrate
+            {t('login.register')}
           </Link>
         </p>
       </div>

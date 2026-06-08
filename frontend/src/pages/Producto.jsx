@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { ToggleTema } from '../components/ToggleTema';
+import { Navbar } from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 export function Producto() {
   const { id } = useParams();
-  const { t, idioma, toggleIdioma } = useLanguage();
-  const { usuario, cerrarSesion } = useAuth();
+  const { t, idioma } = useLanguage();
+  const { usuario } = useAuth();
   const [producto, setProducto] = useState(null);
   const [tienda, setTienda] = useState(null);
   const [cantidad, setCantidad] = useState(1);
@@ -64,33 +64,7 @@ export function Producto() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Barra superior */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold text-gray-900 dark:text-white hover:underline">
-            Silk Road
-          </Link>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleIdioma}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer"
-            >
-              {idioma === 'es' ? 'EN' : 'ES'}
-            </button>
-            <ToggleTema />
-            <span className="text-sm text-gray-600 dark:text-gray-400">{usuario?.nombre}</span>
-            <button
-              onClick={() => {
-                cerrarSesion();
-                window.location.href = '/login';
-              }}
-              className="text-sm text-red-600 dark:text-red-400 hover:underline cursor-pointer"
-            >
-              {t('home.logout')}
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Volver a la tienda */}

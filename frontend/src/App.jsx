@@ -8,6 +8,12 @@ import { Inicio } from './pages/Inicio';
 import { Tienda } from './pages/Tienda';
 import { Producto } from './pages/Producto';
 import Carrito from './pages/Carrito';
+import { HistorialPedidos } from './pages/HistorialPedidos';
+import { Perfil } from './pages/Perfil';
+import { PedidosTienda } from './pages/PedidosTienda';
+import { Admin } from './pages/Admin';
+import { Explorar } from './pages/Explorar';
+
 function App() {
   return (
     <ThemeProvider>
@@ -19,8 +25,13 @@ function App() {
             <Route path="/" element={<Inicio />} />
             <Route path="/tienda/:id" element={<Tienda />} />
             <Route path="/producto/:id" element={<Producto />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/carrito" element={<Carrito />} />
+            <Route path="/historial" element={<HistorialPedidos />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/mis-pedidos" element={<PedidosTienda />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/explorar" element={<Explorar />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </LanguageProvider>

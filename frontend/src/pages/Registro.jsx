@@ -8,30 +8,20 @@ export function Registro() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
   const [rol, setRol] = useState('cliente');
-  
   const [error, setError] = useState('');
   const { registrarUsuario } = useAuth();
-  const { t } = useLanguage();
+  const { t, idioma, toggleIdioma } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (password.length < 6) {
       setError(t('register.errorLength'));
       return;
     }
-
-    const resultado = await registrarUsuario(
-      nombre,
-      email,
-      password,
-      rol
-    );
-
+    const resultado = await registrarUsuario(nombre, email, password, rol);
     if (resultado.exito) {
       navigate('/');
     } else {
@@ -41,7 +31,14 @@ export function Registro() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 relative">
-      <div className="absolute top-4 right-4">
+      {/* Controles esquina superior derecha */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <button
+          onClick={toggleIdioma}
+          className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
+        >
+          {idioma === 'es' ? 'EN' : 'ES'}
+        </button>
         <ToggleTema />
       </div>
 
@@ -92,30 +89,20 @@ export function Registro() {
             />
           </div>
 
-<div>
-  <label
-    htmlFor="rol"
-    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-  >
-    Tipo de usuario
-  </label>
-
-  <select
-    id="rol"
-    value={rol}
-    onChange={(e) => setRol(e.target.value)}
-    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-  >
-    <option value="cliente">
-      Cliente
-    </option>
-
-    <option value="vendedor">
-      Vendedor
-    </option>
-  </select>
-</div>
-
+          <div>
+            <label htmlFor="rol" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {idioma === 'es' ? 'Tipo de cuenta' : 'Account type'}
+            </label>
+            <select
+              id="rol"
+              value={rol}
+              onChange={(e) => setRol(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+            >
+              <option value="cliente">{idioma === 'es' ? 'Cliente' : 'Customer'}</option>
+              <option value="vendedor">{idioma === 'es' ? 'Vendedor' : 'Seller'}</option>
+            </select>
+          </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

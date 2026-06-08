@@ -28,6 +28,7 @@ class Producto(db.Model):
             "imagen": self.imagen,
             "tienda_id": self.tienda_id,
             "tienda_nombre": self.tienda.nombre if self.tienda else None,
+            "categoria": self.tienda.categoria if self.tienda else None,
             "fecha_creacion": (
                 self.fecha_creacion.isoformat() if self.fecha_creacion else None
             ),

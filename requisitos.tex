@@ -1,0 +1,814 @@
+\documentclass[12pt, letterpaper]{article}
+
+% ─── Paquetes ───────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{tocloft}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{subcaption}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{primary}{HTML}{185FA5}
+\definecolor{primarylight}{HTML}{E6F1FB}
+\definecolor{primarymid}{HTML}{B5D4F4}
+\definecolor{rowalt}{HTML}{F7FAFD}
+\definecolor{headerbg}{HTML}{185FA5}
+\definecolor{headerfg}{HTML}{FFFFFF}
+\definecolor{tablegray}{HTML}{F1EFE8}
+\definecolor{bordergray}{HTML}{CCCCCC}
+\definecolor{textmuted}{HTML}{5F5E5A}
+
+% ─── Tipografía y espaciado ───────────────────────────────────────────────────
+\setstretch{1.25}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+
+% ─── Encabezados de sección ──────────────────────────────────────────────────
+\titleformat{\section}
+  {\large\bfseries\color{primary}}
+  {\thesection.}{0.6em}{}[\vspace{2pt}\color{primarymid}\hrule\vspace{4pt}]
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{primary}}
+  {\thesubsection}{0.6em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{textmuted}}
+  {\thesubsubsection}{0.6em}{}
+
+\titlespacing{\section}{0pt}{18pt}{8pt}
+\titlespacing{\subsection}{0pt}{12pt}{4pt}
+
+% ─── Encabezado y pie de página ──────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{textmuted}\textit{Silk Road — Especificación de Requerimientos de Software}}
+\fancyhead[R]{\small\color{textmuted}2026}
+\fancyfoot[C]{\small\color{textmuted}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{primarymid}\hrule width\headwidth height\headrulewidth}
+
+% ─── Listas ──────────────────────────────────────────────────────────────────
+\setlist[itemize]{noitemsep, topsep=4pt, leftmargin=1.4em}
+\setlist[enumerate]{noitemsep, topsep=4pt, leftmargin=1.6em}
+
+% ─── Comandos auxiliares ─────────────────────────────────────────────────────
+
+% Fila de encabezado para tablas
+\newcommand{\tableheadrow}[1]{%
+  \rowcolor{headerbg}\textcolor{headerfg}{\textbf{#1}}%
+}
+
+% Etiqueta de requerimiento (RF / RNF / CU)
+\newcommand{\reqid}[1]{%
+  \textcolor{white}{\colorbox{primary}{\texttt{\small #1}}}%
+}
+
+% ─── Hipervínculos ───────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  citecolor=primary,
+  pdftitle={ERS - Silk Road},
+  pdfauthor={Juancarlos Monsalve}
+}
+
+% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{center}
+    {\normalsize
+    Instituto Tecnológico de Costa Rica \\
+    Centro Académico de Alajuela \\
+     IC-5821. Requerimientos de software
+    }
+
+    \vspace{1.5cm}
+
+    \includegraphics[width=0.75\textwidth]{Logo.png}
+
+    \vspace{1.5cm}
+
+    {\bfseries
+    Proyecto - I Parte: \\
+    }
+
+    \vspace{1cm}
+
+    {\bfseries
+    Estudiantes: \\
+    }
+    José Pablo Barrantes Hernández - 2025063829  \\
+    José David Quirós – 2025065801  \\
+    Carlos Andrés Zúñiga – 2025065194 \\
+    Juan Carlos Monsalve – 2023141521 \\
+
+    \vspace{1cm}
+
+    {\bfseries
+    Profesor:
+    }
+
+    Bryan Tomas Hernandez Sibaja
+
+    \vspace{1cm}
+
+    {\bfseries
+    Fecha de entrega:
+    }
+
+    {\textbf{22/04/2026}}
+
+    \vspace{2cm}
+
+    I Semestre, 2026
+\end{center}
+
+\newpage
+
+
+% ─── Tabla de contenidos ─────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Introducción}
+% ════════════════════════════════════════════════════════════════════════════
+
+El presente documento tiene como propósito definir de manera detallada los requerimientos del sistema \textbf{SilkRoad}, el cual será desarrollado utilizando el framework de React + Python. Este documento servirá como base para el diseño, desarrollo y validación del sistema.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Alcance}
+
+El sistema permitirá a los usuarios finales de Silk Road contar con las siguientes funcionalidades:
+
+\begin{itemize}
+  \item Autenticación de usuarios (registro, inicio y cierre de sesión)
+  \item Exploración y búsqueda de productos
+  \item Gestión de carrito de compras y pedidos
+  \item Creación y administración de tiendas por parte de vendedores
+  \item Publicación y gestión de productos e inventario
+  \item Panel de administración para moderación de la plataforma
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Visión general del documento}
+
+Este documento está organizado en las siguientes secciones:
+
+\begin{enumerate}
+  \item \textbf{Introducción}: propósito, alcance, términos y referencias.
+  \item \textbf{Visión del Producto}: declaración de visión en formato caja.
+  \item \textbf{Descripción General}: contexto, funciones, usuarios y dependencias.
+  \item \textbf{Requerimientos Funcionales}: comportamientos esperados del sistema.
+  \item \textbf{Requerimientos No Funcionales}: atributos de calidad del sistema.
+  \item \textbf{Casos de Uso}: descripción textual de interacciones actor--sistema.
+  \item \textbf{Restricciones}: limitaciones técnicas y de proyecto.
+  \item \textbf{Modelo de Datos}: estructura de entidades y relaciones.
+  \item \textbf{Mapa de Navegación}: estructura de pantallas de la aplicación.
+\end{enumerate}
+
+\newpage
+% ════════════════════════════════════════════════════════════════════════════
+\section{Visión del Producto}
+% ════════════════════════════════════════════════════════════════════════════
+
+La siguiente tabla presenta la declaración de visión del producto SilkRoad.
+
+\vspace{8pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.2cm}X}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{Silk Road — Declaración de Visión}}} \\
+  \midrule
+  Para
+    & Compradores que buscan productos de distintos vendedores en un solo lugar, y
+      vendedores que desean crear y administrar su propia tienda en línea sin
+      infraestructura técnica propia. \\
+  \rowcolor{rowalt}
+  Quienes
+    & Necesitan una plataforma centralizada para explorar, comprar y vender productos
+      de forma organizada y segura, sin depender de múltiples sitios independientes. \\
+  El producto
+    & Silk Road es una aplicación web de tipo marketplace multi-tienda
+      desarrollada con Django. \\
+  \rowcolor{rowalt}
+  Que
+    & Permite a compradores explorar productos, gestionar un carrito y realizar
+      pedidos; a vendedores crear tiendas, publicar productos y administrar su
+      inventario; y a administradores moderar y supervisar toda la plataforma. \\
+  A diferencia de
+    & Soluciones complejas como Amazon o MercadoLibre, que requieren gran
+      infraestructura, integraciones de pago avanzadas y procesos de \emph{onboarding}
+      extensos para vendedores. \\
+  \rowcolor{rowalt}
+  Nuestro producto
+    & Ofrece una experiencia simplificada y accesible, diseñada para entornos
+      educativos y pequeños comercios, con una arquitectura limpia basada en Django
+      que facilita su comprensión, mantenimiento y extensión por parte del equipo
+      de desarrollo. \\
+  \bottomrule
+\end{tabularx}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Descripción General}
+% ════════════════════════════════════════════════════════════════════════════
+
+Silk Road es una aplicación web cliente-servidor desarrollada en Django que permite la interacción de los usuarios mediante un navegador web estándar. La plataforma centraliza la oferta de múltiples vendedores independientes en un único punto de acceso para los compradores.
+
+\newpage
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Funciones del sistema}
+
+El sistema proporcionará las siguientes funciones principales:
+
+\begin{itemize}
+  \item Registro e inicio de sesión de usuarios
+  \item Exploración y búsqueda de productos por categoría o nombre
+  \item Gestión de carrito de compras
+  \item Creación y procesamiento de pedidos
+  \item Creación y administración de tiendas por vendedores
+  \item Publicación, edición y eliminación de productos
+  \item Control de inventario por parte del vendedor
+  \item Panel de administración para gestión de la plataforma
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Características de los usuarios}
+
+\begin{tabularx}{\linewidth}{>{\bfseries}lX}
+  \toprule
+  \rowcolor{primarylight}
+  Rol & Descripción \\
+  \midrule
+  Cliente (comprador)
+    & Puede registrarse, navegar el catálogo, buscar productos, añadir artículos al
+      carrito, realizar pedidos y consultar su historial de compras. \\
+  \rowcolor{rowalt}
+  Vendedor
+    & Puede crear una tienda dentro de la plataforma, publicar y administrar
+      productos, gestionar su inventario y visualizar los pedidos recibidos. \\
+  Administrador
+    & Gestiona usuarios, aprueba o suspende tiendas, modera productos y revisa
+      información general del sistema. \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Suposiciones y dependencias}
+
+\begin{itemize}
+  \item Los usuarios tendrán acceso a internet y a un navegador web moderno.
+  \item El equipo utilizará Django como framework principal de desarrollo.
+  \item Los requerimientos no cambiarán significativamente durante el ciclo de
+        desarrollo del proyecto.
+  \item No se integrará un sistema de pago real en esta primera versión.
+\end{itemize}
+
+\newpage
+% ════════════════════════════════════════════════════════════════════════════
+\section{Requerimientos Funcionales}
+% ════════════════════════════════════════════════════════════════════════════
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+% ── RF-01 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-01 — Registro de usuario}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir a nuevos usuarios crear una cuenta
+                  proporcionando nombre, correo electrónico y contraseña. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Cliente, Vendedor \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-02 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-02 — Inicio de sesión}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir a los usuarios autenticarse mediante
+                  correo electrónico y contraseña. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Cliente, Vendedor, Administrador \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-03 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-03 — Exploración de productos}}} \\
+  \midrule
+  Descripción   & El sistema debe mostrar un catálogo de productos con nombre,
+                  precio, imagen y tienda de origen. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Cliente \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-04 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-04 — Búsqueda de productos}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir buscar productos por nombre o categoría. \\
+  \rowcolor{rowalt}
+  Prioridad     & Media \\
+  Rol afectado  & Cliente \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-05 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-05 — Carrito de compras}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir al cliente agregar, modificar y eliminar
+                  productos de su carrito antes de confirmar un pedido. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Cliente \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-06 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-06 — Creación de pedidos}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir al cliente confirmar su carrito y generar
+                  un pedido. El sistema registrará el pedido y notificará al vendedor. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Cliente \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-07 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-07 — Creación de tienda}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir a un usuario registrado crear una tienda
+                  indicando nombre, descripción y categoría principal. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Vendedor \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-08 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-08 — Gestión de productos}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir al vendedor crear, editar y eliminar
+                  productos de su tienda. Cada producto tendrá: nombre, descripción,
+                  precio, cantidad en inventario e imagen. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Vendedor \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-09 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-09 — Visualización de pedidos recibidos}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir al vendedor ver los pedidos asociados a
+                  su tienda, con detalle de productos y datos del comprador. \\
+  \rowcolor{rowalt}
+  Prioridad     & Media \\
+  Rol afectado  & Vendedor \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-10 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-10 — Panel de administración}}} \\
+  \midrule
+  Descripción   & El sistema debe proporcionar al administrador herramientas para
+                  gestionar usuarios, aprobar o suspender tiendas y moderar productos. \\
+  \rowcolor{rowalt}
+  Prioridad     & Media \\
+  Rol afectado  & Administrador \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-11 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-11 — Gestión de perfil}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir a cualquier usuario autenticado
+                  visualizar y editar su información personal. \\
+  \rowcolor{rowalt}
+  Prioridad     & Baja \\
+  Rol afectado  & Cliente, Vendedor \\
+  \bottomrule
+\end{tabularx}
+
+% ── RF-12 ────────────────────────────────────────────────────────────────────
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}L}
+  \toprule
+  \rowcolor{headerbg}
+  \multicolumn{2}{l}{\textcolor{white}{\textbf{RF-12 — Cerrar sesión}}} \\
+  \midrule
+  Descripción   & El sistema debe permitir al usuario cerrar su sesión de forma
+                  segura, invalidando la sesión activa. \\
+  \rowcolor{rowalt}
+  Prioridad     & Alta \\
+  Rol afectado  & Cliente, Vendedor, Administrador \\
+  \bottomrule
+\end{tabularx}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Requerimientos No Funcionales}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{1.5cm}>{\bfseries}p{3cm}X}
+  \toprule
+  \rowcolor{headerbg}
+  \textcolor{white}{\textbf{ID}} &
+  \textcolor{white}{\textbf{Categoría}} &
+  \textcolor{white}{\textbf{Descripción}} \\
+  \midrule
+  RNF-01 & Usabilidad
+    & El sistema debe ser intuitivo y fácil de usar para personas con conocimientos
+      básicos de navegación web. \\
+  \rowcolor{rowalt}
+  RNF-02 & Seguridad
+    & El sistema debe requerir autenticación para acceder a cualquier funcionalidad
+      protegida. Las contraseñas deben almacenarse con \emph{hashing}. \\
+  RNF-03 & Rendimiento
+    & El sistema debe responder a las acciones del usuario en menos de 2 segundos
+      bajo condiciones normales de uso. \\
+  \rowcolor{rowalt}
+  RNF-04 & Compatibilidad
+    & El sistema debe ser accesible desde navegadores web modernos (Chrome, Firefox,
+      Edge, Safari) sin requerir plugins adicionales. \\
+  RNF-05 & Disponibilidad
+    & El sistema debe estar disponible al menos el 95\% del tiempo durante el
+      periodo de evaluación. \\
+  \rowcolor{rowalt}
+  RNF-06 & Mantenibilidad
+    & El código debe seguir las convenciones de Django y estar organizado en
+      aplicaciones independientes para facilitar su extensión. \\
+  \bottomrule
+\end{tabularx}
+
+\newpage
+% ════════════════════════════════════════════════════════════════════════════
+\section{Casos de Uso}
+% ════════════════════════════════════════════════════════════════════════════
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-01: Registrarse en la plataforma}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Usuario no registrado \\
+  \rowcolor{rowalt}
+  Precondición    & El usuario no tiene cuenta en la plataforma \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El usuario accede a la página de registro \\
+  \rowcolor{rowalt}
+  Paso 2 & Ingresa nombre, correo electrónico y contraseña \\
+  Paso 3 & El sistema valida que el correo no esté en uso y que la contraseña cumpla los requisitos \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema crea la cuenta y redirige al usuario al inicio \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Correo ya registrado → el sistema muestra un mensaje de error \\
+  \rowcolor{rowalt}
+  A2 & Contraseña inválida → el sistema indica los requisitos no cumplidos \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-02: Iniciar sesión}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Usuario registrado \\
+  \rowcolor{rowalt}
+  Precondición    & El usuario tiene una cuenta activa \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El usuario accede a la página de inicio de sesión \\
+  \rowcolor{rowalt}
+  Paso 2 & Ingresa su correo electrónico y contraseña \\
+  Paso 3 & El sistema valida las credenciales \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema inicia la sesión y redirige según el rol del usuario \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Credenciales incorrectas → el sistema muestra un mensaje de error sin revelar cuál campo es incorrecto \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-03: Explorar y buscar productos}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Cliente \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El cliente navega al catálogo de productos \\
+  \rowcolor{rowalt}
+  Paso 2 & El sistema muestra todos los productos disponibles \\
+  Paso 3 & El cliente aplica un filtro por nombre o categoría \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema muestra los resultados filtrados \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Sin resultados → el sistema muestra un mensaje indicando que no se encontraron productos \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-04: Agregar producto al carrito}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Cliente \\
+  \rowcolor{rowalt}
+  Precondición    & El cliente está autenticado y el producto tiene stock disponible \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El cliente selecciona un producto del catálogo \\
+  \rowcolor{rowalt}
+  Paso 2 & Visualiza el detalle del producto \\
+  Paso 3 & Selecciona la cantidad y hace clic en «Añadir al carrito» \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema agrega el producto al carrito y actualiza el contador \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Producto sin stock → el sistema deshabilita el botón e informa la situación \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-05: Realizar un pedido}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Cliente \\
+  \rowcolor{rowalt}
+  Precondición    & El carrito tiene al menos un producto \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El cliente accede a su carrito \\
+  \rowcolor{rowalt}
+  Paso 2 & Revisa los productos y cantidades \\
+  Paso 3 & Confirma el pedido \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema registra el pedido, actualiza el inventario y muestra confirmación \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Algún producto ya no tiene stock suficiente → el sistema informa al cliente antes de confirmar \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-06: Crear tienda}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Vendedor \\
+  \rowcolor{rowalt}
+  Precondición    & El usuario está autenticado y no tiene una tienda creada \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El vendedor accede a la opción «Crear tienda» \\
+  \rowcolor{rowalt}
+  Paso 2 & Ingresa nombre, descripción y categoría principal \\
+  Paso 3 & El sistema registra la tienda con estado \textit{pendiente} \\
+  \rowcolor{rowalt}
+  Paso 4 & El administrador aprueba la tienda \\
+  Paso 5 & La tienda queda activa y visible en la plataforma \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Nombre de tienda ya en uso → el sistema solicita un nombre diferente \\
+  \rowcolor{rowalt}
+  A2 & Administrador rechaza la tienda → el vendedor recibe una notificación \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-07: Publicar producto}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Vendedor \\
+  \rowcolor{rowalt}
+  Precondición    & El vendedor tiene una tienda activa \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El vendedor accede al panel de su tienda \\
+  \rowcolor{rowalt}
+  Paso 2 & Selecciona «Agregar producto» \\
+  Paso 3 & Ingresa nombre, descripción, precio, cantidad e imagen \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema registra el producto y lo hace visible en el catálogo \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujos alternativos}} \\
+  \midrule
+  A1 & Datos incompletos → el sistema indica los campos faltantes \\
+  \bottomrule
+\end{tabularx}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{CU-08: Administrar la plataforma}
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  Actor principal & Administrador \\
+  \rowcolor{rowalt}
+  Precondición    & El administrador está autenticado con privilegios de superusuario \\
+  \midrule
+  \rowcolor{primarylight}
+  \multicolumn{2}{l}{\textbf{Flujo principal}} \\
+  \midrule
+  Paso 1 & El administrador accede al panel de administración \\
+  \rowcolor{rowalt}
+  Paso 2 & Selecciona la entidad a gestionar (usuarios, tiendas o productos) \\
+  Paso 3 & Realiza la acción: aprobar, suspender o eliminar \\
+  \rowcolor{rowalt}
+  Paso 4 & El sistema aplica el cambio y actualiza la vista \\
+  \bottomrule
+\end{tabularx}
+
+\newpage
+% ════════════════════════════════════════════════════════════════════════════
+\section{Restricciones}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{tabularx}{\linewidth}{>{\bfseries\color{primary}}p{3.5cm}X}
+  \toprule
+  \rowcolor{primarylight}
+  Restricción & Descripción \\
+  \midrule
+  Tecnología backend
+    & El sistema debe desarrollarse obligatoriamente con el framework Django
+      (Python). \\
+  Frontend
+    & La interfaz se construirá con HTML, CSS y JavaScript estándar, sin frameworks
+      de frontend de gran escala. \\
+  Pagos
+    & No se integrará una pasarela de pago real en esta versión del proyecto. \\
+  Tiempo
+    & El desarrollo se realizará en el periodo estipulado por el curso; los
+      requerimientos deben ser estables para respetar el cronograma. \\
+  \bottomrule
+\end{tabularx}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Mapa de Navegación}
+% ════════════════════════════════════════════════════════════════════════════
+\begin{center}
+    \includegraphics[width=1\textwidth]{Mapa de Navegación.png}
+\end{center}
+
+\newpage
+% ════════════════════════════════════════════════════════════════════════════
+\section{Caso de Uso}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{center}
+    \includegraphics[width=0.60\textwidth]{Diagramas de actividad/caso de uso.png}
+\end{center}
+\newpage
+% ════════════════════════════════════════════════════════════════════════════
+\section{Diagramas de Actividad}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Registro de cuentas bueno.png}
+        \caption{Registro de cuenta}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Inicio de sesión.png}
+        \caption{Inicio de sesión}
+    \end{subfigure}
+
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Buscar productos.png}
+        \caption{Buscar productos}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Agregar al carrito.png}
+        \caption{Agregar al carrito}
+    \end{subfigure}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Realizar pedido.png}
+        \caption{Realizar pedido}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Crear Tienda.png}
+        \caption{Crear tienda}
+    \end{subfigure}
+
+
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Publicar Producto.png}
+        \caption{Publicar producto}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.40\textwidth}
+        \includegraphics[width=\textwidth]{Diagramas de actividad/Administrar plataforma.png}
+        \caption{Administrar plataforma}
+    \end{subfigure}
+\end{figure}
+\clearpage
+\end{document}

@@ -3,6 +3,7 @@ from ..models.carrito import Carrito
 from ..models.usuario import Usuario
 from ..models.notificacion import Notificacion
 from ..models.producto_carrito import Producto_carrito
+from ..models.pedido import Pedido, PedidoProducto
 from flask import Blueprint, jsonify, session, request
 from ..servicios.token import verificar_token
 from ..db.conexion import db
@@ -114,11 +115,10 @@ def eliminar_producto(id_producto):
             "error": "Producto no encontrado en el carrito"
         }), 404
 
-    product = Producto.query.filter_by(
-        id_producto=id_producto
-    ).first()
+    product = Producto.query.get(id_producto)
 
-    krrito.monto -= product.precio * objeto.cantidad
+    if product:
+        krrito.monto -= product.precio * objeto.cantidad
 
     db.session.delete(objeto)
     db.session.commit()
@@ -238,6 +238,35 @@ def confirmar_pedido():
                 "error": f"Stock insuficiente para {prod.nombre}"
             }), 400
 
+    # Calcular monto total
+    monto_total = sum(
+        Producto.query.get(o.id_producto).precio * o.cantidad
+        for o in objetos
+        if Producto.query.get(o.id_producto)
+    )
+
+    # Guardar pedido en historial
+    nuevo_pedido = Pedido(
+        id_usuario=id_usuario,
+        fecha=date.today(),
+        monto_total=monto_total,
+    )
+    db.session.add(nuevo_pedido)
+    db.session.flush()
+
+    for objeto in objetos:
+        prod = Producto.query.get(objeto.id_producto)
+        if not prod:
+            continue
+        detalle = PedidoProducto(
+            id_pedido=nuevo_pedido.id,
+            id_producto=prod.id,
+            nombre_producto=prod.nombre,
+            precio=prod.precio,
+            cantidad=objeto.cantidad,
+        )
+        db.session.add(detalle)
+
     # Descontar stock y notificar
     for objeto in objetos:
         prod = Producto.query.get(objeto.id_producto)
@@ -248,7 +277,7 @@ def confirmar_pedido():
             id_producto=prod.id,
             id_vendedor=prod.tienda_id,
             mensaje=f"Ha vendido {objeto.cantidad} unidades",
-            fecha = date.today()
+            fecha=date.today(),
         )
 
         db.session.add(noti)
@@ -260,3 +289,57 @@ def confirmar_pedido():
     db.session.commit()
 
     return jsonify({"mensaje": "Pedido confirmado"}), 200
+
+
+@carrito_bp.route("/api/actualizar/<int:id_producto>", methods=["PUT"])
+def actualizar_cantidad(id_producto):
+    id_usuario = obtener_usuario_token()
+    if not id_usuario:
+        return jsonify({"error": "Token invalido"}), 401
+
+    datos = request.get_json()
+    nueva_cantidad = datos.get("cantidad")
+
+    if nueva_cantidad is None or nueva_cantidad < 0:
+        return jsonify({"error": "Cantidad invalida"}), 400
+
+    carrito = Carrito.query.filter_by(id_usuario=id_usuario).first()
+    if not carrito:
+        return jsonify({"error": "Carrito no encontrado"}), 404
+
+    item = Producto_carrito.query.filter_by(
+        id_carrito=carrito.id, id_producto=id_producto
+    ).first()
+    if not item:
+        return jsonify({"error": "Producto no está en el carrito"}), 404
+
+    prod = Producto.query.get(id_producto)
+    if not prod:
+        return jsonify({"error": "Producto no encontrado"}), 404
+
+    if nueva_cantidad == 0:
+        carrito.monto -= prod.precio * item.cantidad
+        db.session.delete(item)
+    elif nueva_cantidad > prod.stock:
+        return jsonify({"error": "No hay suficiente stock"}), 400
+    else:
+        carrito.monto += prod.precio * (nueva_cantidad - item.cantidad)
+        item.cantidad = nueva_cantidad
+
+    db.session.commit()
+    return jsonify({"mensaje": "Cantidad actualizada"}), 200
+
+
+@carrito_bp.route("/api/historial", methods=["GET"])
+def historial_pedidos():
+    id_usuario = obtener_usuario_token()
+    if not id_usuario:
+        return jsonify({"error": "Token invalido"}), 401
+
+    pedidos = (
+        Pedido.query.filter_by(id_usuario=id_usuario)
+        .order_by(Pedido.fecha.desc())
+        .all()
+    )
+
+    return jsonify([p.to_dict() for p in pedidos]), 200
